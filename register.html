@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Pendaftaran Akses - FIII-DB</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h3>Registrasi Akses Siswa</h3>
+        <p style="font-size: 12px; color: #666;">Data Anda akan diverifikasi oleh CEO yang menyamar secepat mungkin</p>
+        <hr>
+        <label>Nama Lengkap (Sesuai Absen):</label>
+        <input type="text" id="reg-name" placeholder="Contoh: Budi Santoso">
+        
+        <label>Asal Sekolah:</label>
+        <select id="reg-school">
+            <option value="tonggalan">SDN 1 Tonggalan</option>
+            <option value="klaten2">SDN 2 Klaten</option>
+        </select>
+
+        <button onclick="requestAccess()">AJUKAN AKSES</button>
+        <p><a href="index.html" style="font-size: 12px;">Sudah punya akun? Login di sini</a></p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+
+    <script src="firebase.js"></script>
+
+    <script src="config.js"></script>
+    <script>
+        // Logika requestAccess ditaruh DI SINI setelah config.js terpanggil
+        function requestAccess() {
+            const name = document.getElementById('reg-name').value.trim().toLowerCase();
+            const school = document.getElementById('reg-school').value;
+
+            if(name !== "") {
+                // Sekarang 'db' sudah dikenal karena config.js sudah dipanggil di atas
+                db.ref('Users/' + school + '/' + name).set({
+                    fullName: name,
+                    classroomKey: (school === 'tonggalan' ? 'TGL5-CEO-A3' : 'KLT2-SAM-AR'),
+                    status: "unverified",
+                    role: "student"
+                }).then(() => {
+                    alert("Berhasil! Silakan tunggu verifikasi CEO.");
+                    window.location.href = "index.html";
+                });
+            }
+        }
+    </script>
+</body>
+</html>
