@@ -26,13 +26,9 @@ document.getElementById('date-info').innerText = "DATA TERKINI: " + new Date().t
 function handleLogin() {
     const userField = document.getElementById('user-input');
     const keyField = document.getElementById('key-input');
-    const schoolField = document.getElementById('school-select');
 
     const user = userField.value.trim().toLowerCase();
     const keyInput = keyField.value.trim().toUpperCase(); 
-    const school = schoolField.value; 
-
-    console.log(school)
 
     // Logika Key
     const isChatMode = keyInput.endsWith('/C');
@@ -42,8 +38,14 @@ function handleLogin() {
     const keyKlaten2 = "KLT2-SAM-AR";
 
     let keyValid = false;
-    if (school === "tonggalan" && actualKey === keyTonggalan) keyValid = true;
-    if (school === "klaten2" && actualKey === keyKlaten2) keyValid = true;
+    let school = ""
+    if (actualKey === keyTonggalan) {
+        keyValid = true;
+        school = "tonggalan";
+    } else if (actualKey === keyKlaten2) {
+        keyValid = true;
+        school = "klaten2";
+    }
 
     if (!keyValid) {
         alert("Classroom Key salah atau tidak sesuai sekolah!");
