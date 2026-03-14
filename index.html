@@ -23,9 +23,12 @@
     <label>Classroom Key (Token):</label>
     <input type="text" id="key-input" placeholder="Masukkan kode akses..." style="text-transform: uppercase;">
 
-    <label for="captcha-input" style="font-weight:bold;">Verifikasi CAPTCHA:</label>
+    <label style="font-weight:bold;">Verifikasi CAPTCHA:</label>
     <div class="g-recaptcha" data-sitekey="6LfV4oksAAAAAP9wLUl3U5AEOgLGkpRfBMYmfXm5"></div>
-    <button onclick="handleLogin()">MASUK SISTEM</button>
+    
+    <button id="login-btn">MASUK SISTEM</button>
+    
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </div>
 
 <div class="container" id="public-homework">

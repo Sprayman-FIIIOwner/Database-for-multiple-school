@@ -1,5 +1,8 @@
 // Set tanggal otomatis
 document.getElementById('date-info').innerText = "DATA TERKINI: " + new Date().toLocaleDateString('id-ID');
+window.onload = () => {
+    document.getElementById('login-btn').onclick = handleLogin;
+};
 
 // 1. Masukkan Config (Ganti dengan data asli dari Firebase Console kamu)
 const firebaseConfig = {
@@ -24,11 +27,17 @@ const auth = firebase.auth();
 document.getElementById('date-info').innerText = "DATA TERKINI: " + new Date().toLocaleDateString('id-ID');
 
 function handleLogin() {
+    if (typeof grecaptcha === "undefined") {
+        alert("CAPTCHA belum siap, tunggu sebentar!");
+        return;
+    }
+
     const captchaResponse = grecaptcha.getResponse();
     if (captchaResponse.length === 0) {
         alert("Silakan centang CAPTCHA sebelum login!");
         return; // hentikan login
     }
+
     const userField = document.getElementById('user-input');
     const keyField = document.getElementById('key-input');
 
