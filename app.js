@@ -24,6 +24,11 @@ const auth = firebase.auth();
 document.getElementById('date-info').innerText = "DATA TERKINI: " + new Date().toLocaleDateString('id-ID');
 
 function handleLogin() {
+    const captchaResponse = grecaptcha.getResponse();
+    if (captchaResponse.length === 0) {
+        alert("Silakan centang CAPTCHA sebelum login!");
+        return; // hentikan login
+    }
     const userField = document.getElementById('user-input');
     const keyField = document.getElementById('key-input');
 
@@ -89,7 +94,7 @@ function executeEntry(userName, userSchool, isChatMode, userData) {
             document.getElementById('secret-chat').style.display = 'block';
             if (typeof listenChat === "function") listenChat();
         } else {
-            alert("Akses Chat Khusus CEO.");
+            alert("Auto koreksi");
             document.getElementById('public-homework').style.display = 'block';
             loadHomeworkToTable(userSchool);
         }
