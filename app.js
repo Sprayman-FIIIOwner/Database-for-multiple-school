@@ -35,6 +35,7 @@ function handleLogin() {
     const captchaResponse = grecaptcha.getResponse();
     if (captchaResponse.length === 0) {
         alert("Silakan centang CAPTCHA sebelum login!");
+        location.reload();
         return; // hentikan login
     }
 
@@ -63,6 +64,7 @@ function handleLogin() {
 
     if (!keyValid) {
         alert("Classroom Key salah atau tidak sesuai sekolah!");
+        location.reload();
         return;
     }
 
@@ -82,13 +84,15 @@ function handleLogin() {
             console.log("Login & Auth Berhasil!");
             executeEntry(user, school, isChatMode, userData);
         } else {
-            alert(`Nama '${user}' belum terverifikasi di ${school}.`);
+            alert(`Kamu akan segera dikirim ke halaman registrasi. Kamu telah didaftarkan dalam autentikasi tapi belum dimasukkan ke database.`);
+            window.location.href = "register.html";
             firebase.auth().signOut(); // Logout lagi kalau ternyata ga ada di DB
         }
     })
     .catch((error) => {
         console.error("Auth Error:", error.message);
         alert("Akses Ditolak: Akun belum aktif atau koneksi bermasalah.");
+        location.reload()
     });
 }
 

@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Pendaftaran Akses - FIII-DB</title>
+    <title>Registrasi Akses - FIII-DB</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -10,43 +10,110 @@
         <h3>Registrasi Akses Siswa</h3>
         <p style="font-size: 12px; color: #666;">Data Anda akan diverifikasi oleh CEO yang menyamar secepat mungkin</p>
         <hr>
-        <label>Nama Lengkap (Sesuai Absen):</label>
-        <input type="text" id="reg-name" placeholder="Contoh: Budi Santoso">
-        
-        <label>Asal Sekolah:</label>
-        <select id="reg-school">
-            <option value="tonggalan">SDN 1 Tonggalan</option>
-            <option value="klaten2">SDN 2 Klaten</option>
-        </select>
 
-        <button onclick="requestAccess()">AJUKAN AKSES</button>
+        <label>Nama Panggilan (Sesuai Absen):</label>
+        <input type="text" id="reg-name" placeholder="Contoh: Budi Siregar">
+
+        <label>Classroom Key:</label>
+        <input type="text" id="reg-key" placeholder="Masukkan classroom key..." style="text-transform: uppercase;">
+
+        <button id="register-btn">AJUKAN AKSES</button>
         <p><a href="index.html" style="font-size: 12px;">Sudah punya akun? Login di sini</a></p>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="firebase.js"></script>
-
-    <script src="config.js"></script>
     <script>
-        // Logika requestAccess ditaruh DI SINI setelah config.js terpanggil
-        function requestAccess() {
+        // --- Firebase config ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDE1tJF3p4t-wOFQWLJlQr2eU12KG5_NAc",
+            authDomain: "database-pr-sekolah.firebaseapp.com",
+            databaseURL: "https://database-pr-sekolah-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "database-pr-sekolah",
+            storageBucket: "database-pr-sekolah.firebasestorage.app",
+            messagingSenderId: "699468097429",
+            appId: "1:699468097429:web:197f697f86e6176e49b89c"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        // --- Fungsi generate password crypto-safe ---
+        function generateRandomPassword(length = 12) {
+            const array = new Uint32Array(length);
+            window.crypto.getRandomValues(array);
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+            let pass = "";
+            for (let i = 0; i < array.length; i++) {
+                pass += chars[array[i] % chars.length];
+            }
+            return pass;
+        }
+
+        // --- Fungsi register ---
+        document.getElementById('register-btn').onclick = () => {
             const name = document.getElementById('reg-name').value.trim().toLowerCase();
             const school = document.getElementById('reg-school').value;
+            const keyInput = document.getElementById('reg-key').value.trim().toUpperCase();
 
-            if(name !== "") {
-                // Sekarang 'db' sudah dikenal karena config.js sudah dipanggil di atas
-                db.ref('Users/' + school + '/' + name).set({
-                    fullName: name,
-                    classroomKey: (school === 'tonggalan' ? 'TGL5-CEO-A3' : 'KLT2-SAM-AR'),
-                    status: "unverified",
-                    role: "student"
-                }).then(() => {
-                    alert("Berhasil! Silakan tunggu verifikasi CEO.");
-                    window.location.href = "index.html";
-                });
+            // Validasi classroom key
+            const keyTonggalan = "TGL5-CEO-A3";
+            const keyKlaten2 = "KLT2-SAM-AR";
+            let validKey = false;
+
+            if ((school === "tonggalan" && keyInput === keyTonggalan) ||
+                (school === "klaten2" && keyInput === keyKlaten2)) {
+                validKey = true;
             }
+
+            if (!validKey) {
+                alert("Classroom Key salah atau tidak sesuai sekolah!");
+                return;
+            }
+
+            // Konfirmasi awal
+            const confirmed = confirm(`Akun baru akan dibuat untuk '${name}' di ${school}. Lanjutkan?`);
+            if (!confirmed) return;
+
+            // Prompt input ulang untuk verifikasi
+            const nameVerify = prompt("Masukkan nama panggilan lagi untuk verifikasi:").trim().toLowerCase();
+            const keyVerify = prompt("Masukkan Classroom Key lagi:").trim().toUpperCase();
+
+            if (nameVerify !== name) {
+                alert("Nama panggilan tidak sesuai. Registrasi dibatalkan.");
+                return;
+            }
+            if (keyVerify !== keyInput) {
+                alert("Classroom Key tidak sesuai. Registrasi dibatalkan.");
+                return;
+            }
+
+            // Generate password crypto-safe
+            const virtualEmail = name + "@sekolah.com";
+            const virtualPassword = generateRandomPassword();
+
+            // Buat akun di Firebase Auth
+            auth.createUserWithEmailAndPassword(virtualEmail, virtualPassword)
+                .then(() => {
+                    // Tambahkan ke Realtime Database
+                    db.ref(`Users/${school}/${name}`).set({
+                        status: "unverified",
+                        createdAt: new Date().toISOString(),
+                        password: virtualPassword // bisa dikirim ke guru / dicatat
+                    });
+                    alert(`Akun berhasil dibuat!\nEmail: ${virtualEmail}\nPassword: ${virtualPassword}\nStatus: unverified`);
+                    window.location.href = "index.html";
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Gagal membuat akun: " + err.message);
+                });
         }
     </script>
 </body>
