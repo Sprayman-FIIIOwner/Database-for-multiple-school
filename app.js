@@ -36,7 +36,7 @@ function handleLogin() {
     if (captchaResponse.length === 0) {
         alert("Silakan centang CAPTCHA sebelum login!");
         location.reload();
-        return; // hentikan login
+        return;
     }
 
     const userField = document.getElementById('user-input');
@@ -45,7 +45,6 @@ function handleLogin() {
     const user = userField.value.trim().toLowerCase();
     const keyInput = keyField.value.trim().toUpperCase(); 
 
-    // Logika Key
     const isChatMode = keyInput.endsWith('/C');
     const actualKey = isChatMode ? keyInput.replace('/C', '') : keyInput;
 
@@ -53,7 +52,7 @@ function handleLogin() {
     const keyKlaten2 = "KLT2-SAM-AR";
 
     let keyValid = false;
-    let school = ""
+    let school = "";
     if (actualKey === keyTonggalan) {
         keyValid = true;
         school = "tonggalan";
@@ -68,31 +67,43 @@ function handleLogin() {
         return;
     }
 
-    // --- BAGIAN BARU: LOGIN AUTH OTOMATIS ---
-    // Kita buat email & password virtual dari input user
     const virtualEmail = user + "@sekolah.com";
-    const virtualPassword = user + "password1248bit"; // Password ini harus kamu samakan saat buat user di Console
+    const virtualPassword = user + "password1248bit";
 
     firebase.auth().signInWithEmailAndPassword(virtualEmail, virtualPassword)
     .then(() => {
-        // Jika Auth Berhasil, baru cek database Users
         return db.ref(`Users/${school}/${user}`).once('value');
     })
     .then((snapshot) => {
-        if (snapshot.exists()) {
-            const userData = snapshot.val();
-            console.log("Login & Auth Berhasil!");
-            executeEntry(user, school, isChatMode, userData);
-        } else {
-            alert(`Kamu akan segera dikirim ke halaman registrasi. Kamu telah didaftarkan dalam autentikasi tapi belum dimasukkan ke database.`);
+        if (!snapshot.exists()) {
+            // User ada di Auth tapi tidak ada di database
             window.location.href = "register.html";
-            firebase.auth().signOut(); // Logout lagi kalau ternyata ga ada di DB
+            firebase.auth().signOut();
+            return;
         }
+
+        const userData = snapshot.val();
+
+        // ✅ Cek status verifikasi
+        if (userData.status === "unverified") {
+            alert("Tolong tunggu 1x24 jam sebelum akun anda dicek");
+            firebase.auth().signOut();
+            location.reload();
+            return;
+        }
+
+        // Jika status dihapus atau null → dianggap verified
+        console.log("Login & Auth Berhasil!");
+        executeEntry(user, school, isChatMode, userData);
     })
     .catch((error) => {
-        console.error("Auth Error:", error.message);
-        alert("Akses Ditolak: Akun belum aktif atau koneksi bermasalah.");
-        location.reload()
+        if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
+            alert(`${user} tidak dikenal`);
+        } else {
+            console.error("Auth Error:", error.message);
+            alert("Akses Ditolak: Akun belum aktif atau koneksi bermasalah.");
+        }
+        location.reload();
     });
 }
 
