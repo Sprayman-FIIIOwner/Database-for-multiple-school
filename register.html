@@ -90,7 +90,7 @@
             if (!confirmed) return;
         
             try {
-            
+                await auth.signInWithEmailAndPassword(name + "@sekolah.com", name + "password1248bit");
                 const snapshot = await db.ref(`Users/${school}/${name}`).once("value");
             
                 if (snapshot.exists()) {
@@ -104,7 +104,7 @@
                 });
             
                 alert("Registrasi berhasil! Silakan tunggu verifikasi admin (maks 1x24 jam).");
-            
+                await auth.signOut();
                 window.location.href = "index.html";
             
             } catch (err) {
