@@ -28,7 +28,7 @@ body {
     background: #ffffff;
     padding: 25px;
     border: 1px solid #dcdcdc;
-    border-radius: 4px;
+    border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
@@ -43,7 +43,7 @@ h3 {
 
 label {
     display: block;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
     margin-bottom: 5px;
     color: #555;
@@ -73,10 +73,10 @@ button {
     background-color: #1a4a7a;
     color: white;
     border: none;
-    border-radius: 3px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
-    text-transform: uppercase;
+    text-transform: none;
     transition: background 0.3s ease;
 }
 
@@ -98,7 +98,7 @@ button:hover {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .homework-table th {
@@ -125,7 +125,7 @@ button:hover {
 a {
     color: #1a4a7a;
     text-decoration: none;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 a:hover {
@@ -138,7 +138,7 @@ a:hover {
 
 #comment-form {
     display: flex;
-    align-items: center; /* vertically center everything */
+    align-items: center;
     gap: 6px;
 }
 
@@ -174,4 +174,14 @@ a:hover {
     padding: 2px 4px;
     border-radius: 3px;
     margin-left: 6px;
+}
+
+.comment[data-pin="true"] {
+    border-left: 4px solid gold;
+    background-color: #fff9e6;
+}
+
+#public-homework,
+#homework-reply {
+    display: none;
 }

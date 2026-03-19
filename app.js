@@ -2,7 +2,7 @@ document.getElementById('date-info').innerText = "DATA TERKINI: " + new Date().t
 window.onload = () => {
     document.getElementById('login-btn').onclick = handleLogin;
     const input = document.getElementById("user-input");
-    const commentsList = document.getElementById("comments-list");
+    commentsList = document.getElementById("comments-list");
 
     const tableBody = document.getElementById("homework-list");
     tableBody.addEventListener("click", function(event) {
@@ -201,7 +201,8 @@ function loadComments(homeworkKey) {
     const commentsList = document.getElementById("comments-list");
     commentsList.innerHTML = "";
 
-    db.ref(`HomeworkReplies/${currentSchool}/${currentHomeworkKey}/chat/${username}`).once("value", snapshot => {
+    db.ref(`HomeworkReplies/${currentSchool}/${homeworkKey}/chat`)
+    .on("value", snapshot => {
         snapshot.forEach(child => {
             const data = child.val();
             const username = child.key;
